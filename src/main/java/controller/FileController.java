@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 @Controller
 public class FileController
@@ -22,7 +23,8 @@ public class FileController
     public String upload(MultipartFile uploadFile, HttpServletRequest request) throws IOException
     {
         String path = request.getSession().getServletContext().getRealPath("/resource/uploads");
-        String fileName = uploadFile.getOriginalFilename();
+        String fileName =
+                UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8) + uploadFile.getOriginalFilename();
         File dir = new File(path, fileName);
         if (!dir.exists() || dir.isDirectory() == false)
         {
