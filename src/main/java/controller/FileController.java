@@ -18,7 +18,8 @@ public class FileController
 
     @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
     @ResponseBody
-    public String upload(MultipartFile uploadFile, @RequestParam("uploadFile") HttpServletRequest request) throws IOException
+    // @RequestParam("uploadFile")
+    public String upload(MultipartFile uploadFile, HttpServletRequest request) throws IOException
     {
         String path = request.getSession().getServletContext().getRealPath("/resource/uploads");
         String fileName = uploadFile.getOriginalFilename();
