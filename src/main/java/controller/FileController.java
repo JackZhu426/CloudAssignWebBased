@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -18,20 +20,30 @@ public class FileController
 {
 
     @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
-    @ResponseBody
+//    @ResponseBody
     // @RequestParam("uploadFile")
-    public String upload(MultipartFile uploadFile, HttpServletRequest request) throws IOException
+    public void upload(@RequestParam("uploadFile") MultipartFile upload, HttpServletRequest request,
+                       HttpServletResponse response) throws IOException, ServletException
     {
         String path = request.getSession().getServletContext().getRealPath("/resource/uploads");
         String fileName =
-                UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8) + uploadFile.getOriginalFilename();
+                UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8) + upload.getOriginalFilename();
         File dir = new File(path, fileName);
         if (!dir.exists() || dir.isDirectory() == false)
         {
             dir.mkdirs();
         }
+
+//        if (fileName.endsWith(".jar"))
+//        {
         //MultipartFile自带的解析方法
-        uploadFile.transferTo(dir);
-        return "ok!";
+        upload.transferTo(dir);
+        request.getRequestDispatcher("/success.jsp").forward(request, response);
+//        return "success!";
+//        } else
+//        {
+//        request.getRequestDispatcher("/failed.jsp").forward(request, response);
+//            return "failed";
+//        }
     }
 }
