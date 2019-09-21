@@ -22,10 +22,10 @@
     <context:component-scan base-package="controller"/>
     <!-- 定义文件解释器；id="multipartResolver" cannot be modified! -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <!-- 设置默认编码 -->
-        <property name="defaultEncoding" value="utf-8"></property>
-        <!-- 上传文件最大大小5M-->
-        <property name="maxUploadSize" value="5242440"></property>
+<!--        &lt;!&ndash; 设置默认编码 &ndash;&gt;-->
+<!--        <property name="defaultEncoding" value="utf-8"></property>-->
+<!--        &lt;!&ndash; 上传文件最大大小5M&ndash;&gt;-->
+<!--        <property name="maxUploadSize" value="5242440"></property>-->
     </bean>
 
 
