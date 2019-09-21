@@ -16,19 +16,19 @@ import java.io.IOException;
 public class FileController
 {
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
     @ResponseBody
-    public String upload(MultipartFile file, HttpServletRequest request) throws IOException
+    public String upload(MultipartFile uploadFile, @RequestParam("uploadFile") HttpServletRequest request) throws IOException
     {
         String path = request.getSession().getServletContext().getRealPath("/resource/uploads");
-        String fileName = file.getOriginalFilename();
+        String fileName = uploadFile.getOriginalFilename();
         File dir = new File(path, fileName);
         if (!dir.exists() || dir.isDirectory() == false)
         {
             dir.mkdirs();
         }
         //MultipartFile自带的解析方法
-        file.transferTo(dir);
+        uploadFile.transferTo(dir);
         return "ok!";
     }
 }

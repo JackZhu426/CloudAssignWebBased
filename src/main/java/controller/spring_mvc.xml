@@ -16,7 +16,8 @@
         http://www.springframework.org/schema/aop/spring-aop.xsd
          http://www.springframework.org/schema/mvc
          http://www.springframework.org/schema/mvc/spring-mvc.xsd">
-
+    <!--  创建MultipartFile实例  -->
+    <mvc:annotation-driven/>
     <!--  包扫描器  -->
     <context:component-scan base-package="controller"/>
     <!-- 定义文件解释器；id="multipartResolver" cannot be modified! -->
@@ -27,7 +28,6 @@
         <property name="maxUploadSize" value="5242440"></property>
     </bean>
 
-    <!--  创建MultipartFile实例  -->
-    <mvc:annotation-driven/>
+
 </beans>
 

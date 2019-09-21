@@ -7,7 +7,7 @@
     <title>Cloud Upload</title>
 </head>
 <body>
-<form method="post" action="upload" enctype="multipart/form-data">
+<form method="post" action="upload.do" enctype="multipart/form-data">
     Choose a file:
     <input type="file" name="uploadFile" width="200px">
     <input type="submit" value="Upload it!">
