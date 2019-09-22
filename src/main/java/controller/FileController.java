@@ -37,9 +37,15 @@ public class FileController
 //        {
         //MultipartFile自带的解析方法
         upload.transferTo(dir);
+        System.out.println(dir.getAbsolutePath());
         // run .jar
-        Process process = Runtime.getRuntime().exec("java -jar" + dir.getAbsolutePath());
-        String resultOfJar = loadInputStream(process.getInputStream());
+        Process process = Runtime.getRuntime().exec("java -jar " + dir.getAbsolutePath());
+
+        // create character stream
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
+        String resultOfJar = br.readLine();
+
+        System.out.println(resultOfJar);
         request.setAttribute("resultOfJar", resultOfJar);
         request.getRequestDispatcher("/success.jsp").forward(request, response);
 //        return "success!";
@@ -50,17 +56,4 @@ public class FileController
 //        }
     }
 
-    private String loadInputStream(InputStream in) throws IOException
-    {
-
-        int len = 0;
-        BufferedInputStream bufferedIn = new BufferedInputStream(in);
-        StringBuffer sb = new StringBuffer();
-        while ((len = bufferedIn.read()) != -1)
-        {
-            sb.append((char) len);
-        }
-        bufferedIn.close();
-        return sb.toString();
-    }
 }
