@@ -20,7 +20,8 @@ public class FileController
 
     @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
 //    @ResponseBody
-    // @RequestParam("uploadFile")
+    // down below: if the pram name of MultipartFile is the same as the <file name=""> submitted, no need to use
+    // annotation
     public void upload(@RequestParam("uploadFile") MultipartFile upload, HttpServletRequest request,
                        HttpServletResponse response) throws IOException, ServletException
     {
@@ -48,11 +49,9 @@ public class FileController
             System.out.println(resultOfJar);
             request.setAttribute("resultOfJar", resultOfJar);
             request.getRequestDispatcher("/success.jsp").forward(request, response);
-//        return "success!";
         } else
         {
             request.getRequestDispatcher("/failed.jsp").forward(request, response);
-//            return "failed";
         }
     }
 
