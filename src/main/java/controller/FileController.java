@@ -33,27 +33,27 @@ public class FileController
             dir.mkdirs();
         }
 
-//        if (fileName.endsWith(".jar"))
-//        {
-        //MultipartFile自带的解析方法
-        upload.transferTo(dir);
-        System.out.println(dir.getAbsolutePath());
-        // run .jar
-        Process process = Runtime.getRuntime().exec("java -jar " + dir.getAbsolutePath());
+        if (fileName.endsWith(".jar"))
+        {
+            //MultipartFile自带的解析方法
+            upload.transferTo(dir);
+            System.out.println(dir.getAbsolutePath());
+            // run .jar
+            Process process = Runtime.getRuntime().exec("java -jar " + dir.getAbsolutePath());
 
-        // create character stream
-        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
-        String resultOfJar = br.readLine();
+            // create character stream
+            BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
+            String resultOfJar = br.readLine();
 
-        System.out.println(resultOfJar);
-        request.setAttribute("resultOfJar", resultOfJar);
-        request.getRequestDispatcher("/success.jsp").forward(request, response);
+            System.out.println(resultOfJar);
+            request.setAttribute("resultOfJar", resultOfJar);
+            request.getRequestDispatcher("/success.jsp").forward(request, response);
 //        return "success!";
-//        } else
-//        {
-//        request.getRequestDispatcher("/failed.jsp").forward(request, response);
+        } else
+        {
+            request.getRequestDispatcher("/failed.jsp").forward(request, response);
 //            return "failed";
-//        }
+        }
     }
 
 }
