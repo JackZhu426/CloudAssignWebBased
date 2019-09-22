@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Fail</title>
+    <%--  import js in case it is needed  --%>
+    <script src="js/jquery-3.3.1.min.js"></script>
 </head>
 <body>
 <p style="color: crimson; font-width: bold; font-size: 20px">Failed! Please make sure you are uploading ".jar" file</p>
