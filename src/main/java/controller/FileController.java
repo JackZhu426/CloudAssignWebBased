@@ -44,8 +44,14 @@ public class FileController
 
             // create character stream
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
-            String resultOfJar = br.readLine();
+            StringBuffer sb = new StringBuffer();
+            String line = null;
+            while ((line = br.readLine()) != null)
+            {
+                sb.append(line);
+            }
 
+            String resultOfJar = sb.toString();
             System.out.println(resultOfJar);
             request.setAttribute("resultOfJar", resultOfJar);
             request.getRequestDispatcher("/success.jsp").forward(request, response);
