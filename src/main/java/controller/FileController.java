@@ -20,8 +20,10 @@ public class FileController
 
     @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
 //    @ResponseBody
-    // down below: if the pram name of MultipartFile is the same as the <file name=""> submitted, no need to use
-    // annotation
+    /*
+        down below: if the pram name of MultipartFile is the same as the <file name=""> submitted,
+        no need to use annotation
+     */
     public void upload(@RequestParam("uploadFile") MultipartFile upload, HttpServletRequest request,
                        HttpServletResponse response) throws IOException, ServletException
     {
@@ -45,13 +47,13 @@ public class FileController
             // create character stream
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
             StringBuffer sb = new StringBuffer();
-            String line = null;
-            while ((line = br.readLine()) != null)
+            String resultOfJar = null;
+            while ((resultOfJar = br.readLine()) != null)
             {
-                sb.append(line);
+                sb.append(resultOfJar);
             }
 
-            String resultOfJar = sb.toString();
+            resultOfJar = sb.toString();
             System.out.println(resultOfJar);
             request.setAttribute("resultOfJar", resultOfJar);
             request.getRequestDispatcher("/success.jsp").forward(request, response);
