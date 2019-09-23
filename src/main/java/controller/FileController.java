@@ -18,7 +18,7 @@ import java.util.UUID;
 public class FileController
 {
 
-    @RequestMapping(value = "/upload.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
 //    @ResponseBody
     /*
         down below: if the pram name of MultipartFile is the same as the <file name=""> submitted,
