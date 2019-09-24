@@ -4,6 +4,6 @@
     <title>Download</title>
 </head>
 <body>
-<a href="download?${userPasscode}_result.txt">Download the file</a>
+<a href="download?filename=${userPasscode}_result.txt">Download the file</a>
 </body>
 </html>

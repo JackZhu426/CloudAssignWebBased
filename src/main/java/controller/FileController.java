@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -112,7 +114,7 @@ public class FileController
 
 
     @RequestMapping(value = "/download")
-    public static void download()
+    public static void download(HttpServletRequest request, HttpServletResponse response)
     {
 
         try
@@ -133,11 +135,26 @@ public class FileController
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
 
-            InputStream stream = sftpChannel.get("/home/ubuntu/eclipse-workspace/FogPushNew2" +
-                    ".zip_expanded/FogPushNew2/src/FogServer.java"); //server file path
+            // get the request param
+            String cloudFileName = request.getParameter("filename");
+            InputStream cloudInputStream = sftpChannel.get("/home/ubuntu/result/" + cloudFileName); //server file path
 
+            // get ServletContext
+            ServletContext servletContext = request.getServletContext();
+            String mimeType = servletContext.getMimeType(cloudFileName);
+            // set the content type ; e.g. text/html, image/jpg
+            response.setHeader("content-type", mimeType);
+            // set the way of response opening
+            response.setHeader("content-disposition", "attachment; filename=" + cloudFileName);
             try
             {
+                ServletOutputStream outputStream = response.getOutputStream();
+                byte[] bytes = new byte[1024 * 8];
+                int len = 0;
+                while ((len = cloudInputStream.read(bytes)) != -1)
+                {
+                    outputStream.write(bytes, 0, len);
+                }
 
             } catch (IOException io)
             {
