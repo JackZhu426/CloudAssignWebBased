@@ -8,8 +8,8 @@
 <body>
 <p>Successfully uploaded!</p>
 <hr/>
-<p style="color: blue; font-weight: bold">After running this .jar file, the output is:</p>
-<p>${requestScope.resultOfJar}</p>
+<p style="color: blue; font-weight: bold">Your passcode is:</p>
+<p>${requestScope.passcode}</p>
 <hr/>
 <a href="index.jsp" style="font-size: 20px">Click to re-upload the file</a>
 </body>

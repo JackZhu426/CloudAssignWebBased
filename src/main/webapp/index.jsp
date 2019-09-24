@@ -15,6 +15,11 @@
     <input type="submit" value="Upload it!">
 </form>
 <hr>
+<p>Download the file: </p>
+<form method="post" action="codeCheck">
+    <input type="text" name="userPassword">
+    <input type="submit" value="Check your code">
+</form>
 <p></p>
 </body>
 </html>

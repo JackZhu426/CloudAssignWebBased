@@ -30,8 +30,8 @@ public class FileController
     {
 
         String path = "/home/ubuntu/upload/";
-        String fileName =
-                UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8) + upload.getOriginalFilename();
+        String passcode = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
+        String fileName = passcode + "_" + upload.getOriginalFilename();
         String dir = path + fileName;
         if (fileName.endsWith(".jar"))
         {
@@ -82,6 +82,8 @@ public class FileController
 
                 sftpChannel.exit();
                 session.disconnect();
+                // passcode transmitting to the web page
+                request.setAttribute("passcode", passcode);
                 request.getRequestDispatcher("/success.jsp").forward(request, response);
             } catch (JSchException e)
             {
@@ -100,7 +102,17 @@ public class FileController
         }
     }
 
-    public static void downloadFile()
+    @RequestMapping(value = "/codeCheck", method = RequestMethod.POST)
+    public void checkCode(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    {
+        String userPassword = request.getParameter("userPassword");
+        request.setAttribute("userPasscode", userPassword);
+        request.getRequestDispatcher("/download.jsp").forward(request, response);
+    }
+
+
+    @RequestMapping(value = "/download")
+    public static void download()
     {
 
         try
@@ -111,7 +123,6 @@ public class FileController
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
-            // session.setPassword("KIT418@utas"); ////if password is empty please comment it
             jsch.addIdentity(privateKey);
             System.out.println("identity added ");
             config.put("StrictHostKeyChecking", "no");
@@ -122,24 +133,12 @@ public class FileController
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
 
-            OutputStream cloudOutputStream = sftpChannel.put("/home/ubuntu/upload");
-            BufferedWriter writer = new BufferedWriter(new FileWriter("C:/Users/sudheerb/Documents/serveroutput.java"
-                    , true)); //local path to store downloaded file
-
             InputStream stream = sftpChannel.get("/home/ubuntu/eclipse-workspace/FogPushNew2" +
                     ".zip_expanded/FogPushNew2/src/FogServer.java"); //server file path
 
-
             try
             {
-                BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-                String line;
-                while ((line = br.readLine()) != null)
-                {
-                    writer.append(line);
-                }
-                System.out.println("File Downloaded");
-                writer.close();
+
             } catch (IOException io)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
