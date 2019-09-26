@@ -68,7 +68,9 @@ public class FileController
                     {
                         cloudOutputStream.write(bytes, 0, len);
                     }
+                    // close the streams
                     cloudOutputStream.close();
+                    localInputStream.close();
                     System.out.println("File Uploaded!");
                     System.out.println(cloudDst);
                 } catch (IOException io)
@@ -156,7 +158,9 @@ public class FileController
                 {
                     outputStream.write(bytes, 0, len);
                 }
-
+                // close the streams
+                outputStream.close();
+                cloudInputStream.close();
             } catch (IOException io)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
