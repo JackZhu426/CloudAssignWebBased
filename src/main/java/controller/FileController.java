@@ -1,6 +1,7 @@
 package controller;
 
 import com.jcraft.jsch.*;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,7 +35,7 @@ public class FileController
         String path = "/home/ubuntu/upload/";
         String passcode = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
         String fileName = passcode + "_" + upload.getOriginalFilename();
-        String dir = path + fileName;
+        String cloudDst = path + fileName;
         if (fileName.endsWith(".jar"))
         {
             try
@@ -56,7 +57,7 @@ public class FileController
                 channel.connect();
                 ChannelSftp sftpChannel = (ChannelSftp) channel;
 
-                OutputStream cloudOutputStream = sftpChannel.put(dir);
+                OutputStream cloudOutputStream = sftpChannel.put(cloudDst);
                 InputStream localInputStream = upload.getInputStream();
 
                 try
@@ -69,7 +70,7 @@ public class FileController
                     }
                     cloudOutputStream.close();
                     System.out.println("File Uploaded!");
-                    System.out.println(dir);
+                    System.out.println(cloudDst);
                 } catch (IOException io)
                 {
                     System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
