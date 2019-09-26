@@ -14,7 +14,8 @@ public class WorkersClient
         // will automatically detect files & process every 60s
         while (true)
         {
-            File filePath = new File("/home/ubuntu/upload/");
+//            File filePath = new File("/home/ubuntu/upload/");
+            File filePath = new File("/Users/jackzhu/Desktop/helloworld_jar/jar"); // local test
             File[] allFiles = filePath.listFiles();
             for (File file : allFiles)
             {
@@ -31,32 +32,38 @@ public class WorkersClient
                         @Override
                         public void run()
                         {
-                            Process process = processFile(absolutePath);
-                            // result file (e.g. 1gsh457j_result.txt)
-                            String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
-                                    "_result" +
-                                    ".txt";
-                            try
+                            if (fileName.endsWith(".jar"))
                             {
-                                BufferedReader bufferedReader =
-                                        new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"
-                                        ));
-                                PrintWriter printWriter =
-                                        new PrintWriter(new OutputStreamWriter(new FileOutputStream(resultFileName),
-                                                "utf-8"));
-                                String line = null;
-                                while ((line = bufferedReader.readLine()) != null)
+                                Process process = processFile(absolutePath);
+                                // result file (e.g. 1gsh457j_result.txt)
+//                                String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
+//                                        "_result" +
+//                                        ".txt";
+                                String resultFileName = "/Users/jackzhu/Desktop/result/" + fileName.split("_")[0] +
+                                        "_result" +
+                                        ".txt"; // test
+                                try
                                 {
-                                    printWriter.write(line);
+                                    BufferedReader bufferedReader =
+                                            new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"
+                                            ));
+                                    PrintWriter printWriter =
+                                            new PrintWriter(new OutputStreamWriter(new FileOutputStream(resultFileName),
+                                                    "utf-8"));
+                                    String line = null;
+                                    while ((line = bufferedReader.readLine()) != null)
+                                    {
+                                        printWriter.write(line);
+                                    }
+                                    // close the streams
+                                    bufferedReader.close();
+                                    printWriter.close();
+                                    // upload back to the master
+                                    uploadResult(resultFileName);
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
                                 }
-                                // close the streams
-                                bufferedReader.close();
-                                printWriter.close();
-                                // upload back to the master
-                                uploadResult(resultFileName);
-                            } catch (Exception e)
-                            {
-                                e.printStackTrace();
                             }
                         }
                     }).start();
