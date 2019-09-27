@@ -3,45 +3,45 @@ package Sokcet;
 import com.jcraft.jsch.*;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class WorkersClient
 {
+
     public static void main(String[] args)
     {
-        int totalFiles = 0;
+        List<String> list = new ArrayList<String>();
 
         // will automatically detect files & process every 60s
         while (true)
         {
-//            File filePath = new File("/home/ubuntu/upload/");
-            File filePath = new File("/Users/jackzhu/Desktop/helloworld_jar/jar"); // local test
+            File filePath = new File("/home/ubuntu/upload/");
             File[] allFiles = filePath.listFiles();
             for (File file : allFiles)
             {
                 System.out.println("filename: " + file.getName());
-            }
-            if (allFiles.length > totalFiles)
-            {
-                for (int i = totalFiles; i < allFiles.length; i++)
+                boolean flag = false;
+                if (list.contains(file.getName()))
                 {
-                    String absolutePath = allFiles[i].getAbsolutePath();
-                    String fileName = allFiles[i].getName();
+                    flag = true;
+                }
+                if (flag == false)
+                {
+                    String absolutePath = file.getAbsolutePath();
+                    String fileName = file.getName();
                     new Thread(new Runnable()
                     {
-                        @Override
                         public void run()
                         {
                             if (fileName.endsWith(".jar"))
                             {
                                 Process process = processFile(absolutePath);
                                 // result file (e.g. 1gsh457j_result.txt)
-//                                String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
-//                                        "_result" +
-//                                        ".txt";
-                                String resultFileName = "/Users/jackzhu/Desktop/result/" + fileName.split("_")[0] +
+                                String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
                                         "_result" +
-                                        ".txt"; // test
+                                        ".txt";
                                 try
                                 {
                                     BufferedReader bufferedReader =
@@ -67,13 +67,13 @@ public class WorkersClient
                             }
                         }
                     }).start();
-
                 }
-                totalFiles = allFiles.length;
+                list.add(file.getName());
             }
+
             try
             {
-                Thread.sleep(60000);
+                Thread.sleep(30000);
             } catch (InterruptedException e)
             {
                 e.printStackTrace();
@@ -106,7 +106,7 @@ public class WorkersClient
             String host = "115.146.85.207";
             String user = "ubuntu";
             // TODO: need to change the path
-            String privateKey = "/Users/jackzhu/Desktop/jack.pem"; //please provide your ppk file
+            String privateKey = "/home/ubuntu/javarepo/jack.pem"; //please provide your ppk file
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
@@ -124,7 +124,7 @@ public class WorkersClient
             {
                 sftpChannel.put(file, path);
 
-                System.out.println("File Uploaded!");
+                System.out.println("File Uploaded: " + file.substring(file.lastIndexOf("/") + 1));
             } catch (Exception e)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e
@@ -142,9 +142,6 @@ public class WorkersClient
         {
             System.out.println(e);
         }
-
-
     }
-
 
 }

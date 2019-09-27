@@ -9,33 +9,39 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 public class MasterServer
 {
+
     public static void main(String[] args) throws InterruptedException
     {
-        int totalFiles = 0;
+        List<String> list = new ArrayList<String>();
         while (true)
         {
-            File uploadFiles = new File("/Users/jackzhu/Desktop/PTE");
+            File uploadFiles = new File("/home/ubuntu/upload");
             File[] files = uploadFiles.listFiles();
 
 
             for (File file : files)
             {
                 System.out.println("filename: " + file.getName());
-            }
-            if (files.length > totalFiles)
-            {
-                for (int i = totalFiles; i < files.length; i++)
+                boolean flag = false;
+                if (list.contains(file.getName()))
                 {
-                    String filePath = files[i].getAbsolutePath();
+                    flag = true;
+                }
+                if (flag == false)
+                {
+                    System.out.println("Find a new file, prepare to allocate to the worker: " + file.getName());
+                    final String filePath = file.getAbsolutePath();
                     // upload should be multi-threaded to achieve multiple files upload simultaneously
                     new Thread(new Runnable()
                     {
-                        @Override
+
                         public void run()
                         {
                             // call the static function upload(String file)
@@ -43,10 +49,10 @@ public class MasterServer
                         }
                     }).start();
                 }
-                totalFiles = files.length;
+                list.add(file.getName());
             }
 
-            Thread.sleep(60000);
+            Thread.sleep(30000);
         }
     }
 
@@ -56,9 +62,9 @@ public class MasterServer
 
         try
         {
-            String host = "115.146.85.207";
+            String host = "144.6.227.6";
             String user = "ubuntu";
-            String privateKey = "/Users/jackzhu/Desktop/jack.pem"; //please provide your ppk file
+            String privateKey = "/home/ubuntu/javarepo/jack.pem"; //please provide your ppk file
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
@@ -99,7 +105,6 @@ public class MasterServer
         {
             System.out.println(e);
         }
-
 
     }
 }
