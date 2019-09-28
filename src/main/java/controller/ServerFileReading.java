@@ -23,16 +23,16 @@ public class ServerFileReading
 
         try
         {
-            String command = "ls -a";
-            String host = "144.6.227.17";
+            String command = "sar -u 1 1";
+            String host = "144.6.227.6";
             String user = "ubuntu";
-            String privateKey = "C:/blockchain1.ppk";
+            String privateKey = "/Users/jackzhu/Desktop/jack.pem";
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
             // session.setPassword("utas");
             jsch.addIdentity(privateKey);
-            System.out.println("identity added ");
+            System.out.println("connected to the host: " + host);
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
             ;
@@ -85,7 +85,7 @@ public class ServerFileReading
             Properties config = new Properties();
             // session.setPassword("KIT418@utas"); ////if password is empty please comment it
             jsch.addIdentity(privateKey);
-            System.out.println("identity added ");
+            System.out.println("connected to the host: " + host);
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
             ;
@@ -166,9 +166,9 @@ public class ServerFileReading
     public static void main(String[] args)
     {
         // TODO Auto-generated method stub
-        //runCommand();
+        runCommand();
         //processCommand("notepad.exe");
-        downloadFile();
+//        downloadFile();
 
     }
 

@@ -1,18 +1,11 @@
-package Sokcet;
+package Services;
 
 import com.jcraft.jsch.*;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 public class MasterServer
 {
