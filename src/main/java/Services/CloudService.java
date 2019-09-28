@@ -12,7 +12,7 @@ import org.openstack4j.model.image.Image;
 import org.openstack4j.openstack.OSFactory;
 
 /**
- * OpenStack Example
+ * If the all the Cloud Services are overloaded, CREATE a new server
  */
 public class CloudService
 {
