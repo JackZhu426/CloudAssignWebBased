@@ -23,7 +23,7 @@ public class ServerFileReading
 
         try
         {
-            String command = "sar -u 1 1";
+            String command = "sar -q 1 1";
             String host = "144.6.227.6";
             String user = "ubuntu";
             String privateKey = "/Users/jackzhu/Desktop/jack.pem";
@@ -35,7 +35,6 @@ public class ServerFileReading
             System.out.println("connected to the host: " + host);
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
-            ;
             session.connect();
             Channel channel = session.openChannel("exec");
             ((ChannelExec) channel).setCommand(command);

@@ -19,6 +19,10 @@ public class WorkersClient
         {
             File filePath = new File("/home/ubuntu/upload/");
             File[] allFiles = filePath.listFiles();
+            /*
+                Maintain a request queue by traversing new File[] compared with those have been processed,
+                find new file(s) in the directory to request for the processing
+             */
             for (File file : allFiles)
             {
                 System.out.println("filename: " + file.getName());
@@ -31,6 +35,7 @@ public class WorkersClient
                 {
                     String absolutePath = file.getAbsolutePath();
                     String fileName = file.getName();
+                    System.out.println("Find a new file, prepare to process: " + fileName);
                     new Thread(new Runnable()
                     {
                         public void run()
@@ -38,6 +43,7 @@ public class WorkersClient
                             if (fileName.endsWith(".jar"))
                             {
                                 Process process = processFile(absolutePath);
+                                System.out.println("Process finished: " + fileName);
                                 // result file (e.g. 1gsh457j_result.txt)
                                 String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
                                         "_result" +
@@ -111,7 +117,7 @@ public class WorkersClient
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
             jsch.addIdentity(privateKey);
-            System.out.println("identity added ");
+            // System.out.println("identity added ");
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
             session.connect();
@@ -124,7 +130,7 @@ public class WorkersClient
             {
                 sftpChannel.put(file, path);
 
-                System.out.println("File Uploaded: " + file.substring(file.lastIndexOf("/") + 1));
+                System.out.println("Result Uploaded to Master: " + file.substring(file.lastIndexOf("/") + 1));
             } catch (Exception e)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e

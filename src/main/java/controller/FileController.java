@@ -71,8 +71,8 @@ public class FileController
                     // close the streams
                     cloudOutputStream.close();
                     localInputStream.close();
-                    System.out.println("File Uploaded!");
-                    System.out.println(cloudDst);
+                    System.out.println("File Uploaded: " + fileName);
+                    System.out.println("Transfer to: " + cloudDst);
                 } catch (IOException io)
                 {
                     System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
@@ -112,6 +112,14 @@ public class FileController
     {
         String userPassword = request.getParameter("userPassword");
         request.setAttribute("userPasscode", userPassword);
+        boolean statusOfFile = checkFileStatus(userPassword + "_result.txt"); // i.e exists or not
+        if (statusOfFile)
+        {
+            request.setAttribute("status", "Your task is completed!! You can download now");
+        } else
+        {
+            request.setAttribute("status", "No such file... 1. Wrong Code 2. Task is still processing... Please re-input the code or download later");
+        }
         request.getRequestDispatcher("/download.jsp").forward(request, response);
     }
 
@@ -140,6 +148,7 @@ public class FileController
 
             // get the request param
             String cloudFileName = request.getParameter("filename");
+
             InputStream cloudInputStream = sftpChannel.get("/home/ubuntu/result/" + cloudFileName); //server file path
 
             // get ServletContext
@@ -184,6 +193,70 @@ public class FileController
         } catch (Exception e)
         {
             System.out.println(e);
+        }
+    }
+
+    /**
+     * Query status of the request:
+     * check if the request is finished and ready to be downloaded
+     */
+    public static boolean checkFileStatus(String cloudFileName)
+    {
+
+        boolean status = false;
+        try
+        {
+            String command = "ls /home/ubuntu/result";
+            String host = "115.146.85.207";
+            String user = "ubuntu";
+            String privateKey = "/Users/jackzhu/Desktop/jack.pem";
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, 22);
+            Properties config = new Properties();
+            jsch.addIdentity(privateKey);
+//            System.out.println("identity added");
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(command);
+
+            channel.setInputStream(System.in);
+            channel.connect();
+
+            InputStream input = channel.getInputStream();
+            try
+            {
+                BufferedReader br = new BufferedReader(new InputStreamReader(input));
+                String line;
+                while ((line = br.readLine()) != null)
+                {
+                    System.out.println("result files: " + line);
+                    if (line.contains(cloudFileName))
+                    {
+                        // the job finished, dir has the certain result
+                        status = true;
+                        break;
+                    }
+                }
+
+            } catch (IOException io)
+            {
+                System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
+                io.getMessage();
+
+            } catch (Exception e)
+            {
+                System.out.println("Exception occurred during reading file from SFTP server due to " + e.getMessage());
+                e.getMessage();
+
+            }
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        } finally
+        {
+            return status;
         }
     }
 
