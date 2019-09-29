@@ -118,12 +118,16 @@ public class FileController
             request.setAttribute("status", "Your task is completed!! You can download now");
         } else
         {
-            request.setAttribute("status", "No such file... 1. Wrong Code 2. Task is still processing... Please re-input the code or download later");
+            request.setAttribute("status", "No such file... 1. Wrong Code 2. Task is still processing... Please " +
+                    "re-input the code or download later");
         }
         request.getRequestDispatcher("/download.jsp").forward(request, response);
     }
 
 
+    /**
+     * Download the file by certain code from the master
+     */
     @RequestMapping(value = "/download")
     public static void download(HttpServletRequest request, HttpServletResponse response)
     {
@@ -194,6 +198,47 @@ public class FileController
         {
             System.out.println(e);
         }
+    }
+
+    /**
+     * cancel the execution of a request
+     */
+    @RequestMapping(value = "/cancelExec", method = RequestMethod.POST)
+    public static void cancelRequest(HttpServletRequest request, HttpServletResponse response)
+    {
+        try
+        {
+            String code = request.getParameter("code");
+            String deleteFilename = request.getParameter("filename");
+            String command = "rm -rf /home/ubuntu/upload/" + code + "_" + deleteFilename;
+            String host = "115.146.85.207";
+            String user = "ubuntu";
+            String privateKey = "/Users/jackzhu/Desktop/jack.pem";
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, 22);
+            Properties config = new Properties();
+            jsch.addIdentity(privateKey);
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(command);
+
+//            channel.setInputStream(System.in);
+            channel.connect();
+
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        }
+        try
+        {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+        } catch (IOException e)
+        {
+            System.out.println(e);
+        }
+
     }
 
     /**

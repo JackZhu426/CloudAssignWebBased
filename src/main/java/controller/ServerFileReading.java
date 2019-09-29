@@ -52,6 +52,10 @@ public class ServerFileReading
                 while ((line = br.readLine()) != null)
                 {
                     System.out.println(line);
+                    if (line.contains("Average"))
+                    {
+                        System.out.println("runq-sz: " + line.substring(8, 21).trim());
+                    }
                 }
 
             } catch (IOException io)
@@ -87,7 +91,6 @@ public class ServerFileReading
             System.out.println("connected to the host: " + host);
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
-            ;
             session.connect();
 
             Channel channel = session.openChannel("sftp");

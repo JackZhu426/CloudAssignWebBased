@@ -130,7 +130,7 @@ public class WorkersClient
             {
                 sftpChannel.put(file, path);
 
-                System.out.println("Result Uploaded to Master: " + file.substring(file.lastIndexOf("/") + 1));
+                System.out.println("File Uploaded to Master: " + file.substring(file.lastIndexOf("/") + 1));
             } catch (Exception e)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e

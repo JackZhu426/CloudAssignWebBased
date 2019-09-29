@@ -20,6 +20,13 @@
     <input type="text" name="userPassword">
     <input type="submit" value="Check your code">
 </form>
-<p></p>
+<hr>
+<%-- cancel the request --%>
+<form action="cancelExec" method="post">
+    <p style="color: crimson">please input your code and your file name with suffix (e.g. hello.jar)</p>
+    code:  <input type="text" name="code">
+    filename:  <input type="text" name="filename">
+    <input type="submit" value="Cancel your request" style="font-size: 20px">
+</form>
 </body>
 </html>
