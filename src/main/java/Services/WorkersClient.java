@@ -10,10 +10,12 @@ import java.util.Properties;
 public class WorkersClient
 {
 
+    // every millisecond fee: $1000
+    private final static long FEEONMS = 1000;
+
     public static void main(String[] args)
     {
         List<String> list = new ArrayList<String>();
-
         // will automatically detect files & process every 60s
         while (true)
         {
@@ -42,7 +44,13 @@ public class WorkersClient
                         {
                             if (fileName.endsWith(".jar"))
                             {
+                                long startTime = System.currentTimeMillis();
                                 Process process = processFile(absolutePath);
+                                /*
+                                    total time cost, to generate the bill
+                                 */
+                                long timeCost = System.currentTimeMillis() - startTime;
+                                long bill = timeCost * FEEONMS;
                                 System.out.println("Process finished: " + fileName);
                                 // result file (e.g. 1gsh457j_result.txt)
                                 String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
@@ -55,12 +63,13 @@ public class WorkersClient
                                             ));
                                     PrintWriter printWriter =
                                             new PrintWriter(new OutputStreamWriter(new FileOutputStream(resultFileName),
-                                                    "utf-8"));
+                                                    "utf-8"), true);
                                     String line = null;
                                     while ((line = bufferedReader.readLine()) != null)
                                     {
                                         printWriter.write(line);
                                     }
+                                    printWriter.append("\nThis program's bill: $" + bill + ". Please pay online");
                                     // close the streams
                                     bufferedReader.close();
                                     printWriter.close();
@@ -149,5 +158,6 @@ public class WorkersClient
             System.out.println(e);
         }
     }
+
 
 }
