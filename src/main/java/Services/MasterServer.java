@@ -50,7 +50,8 @@ public class MasterServer
                 if (flagQueue)
                 {
                     CloudService cloudService = new CloudService();
-                    cloudService.createServer();
+                    String server = cloudService.createServer();
+                    // workersIpList.add(server);
                 }
 
                 boolean flagFileExsists = false;

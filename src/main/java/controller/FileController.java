@@ -1,14 +1,11 @@
 package controller;
 
 import com.jcraft.jsch.*;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -174,29 +171,26 @@ public class FileController
                 // close the streams
                 outputStream.close();
                 cloudInputStream.close();
-            } catch (IOException io)
-            {
-                System.out.println("Exception occurred during reading file from SFTP server due to " + io.getMessage());
-                io.getMessage();
-
             } catch (Exception e)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e.getMessage());
                 e.getMessage();
+                request.getRequestDispatcher("/failed.jsp").forward(request, response);
 
             }
 
             sftpChannel.exit();
             session.disconnect();
-        } catch (JSchException e)
-        {
-            e.printStackTrace();
-        } catch (SftpException e)
-        {
-            e.printStackTrace();
         } catch (Exception e)
         {
-            System.out.println(e);
+            e.printStackTrace();
+            try
+            {
+                request.getRequestDispatcher("/failed.jsp").forward(request, response);
+            } catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -226,6 +220,10 @@ public class FileController
 
 //            channel.setInputStream(System.in);
             channel.connect();
+
+            // close the channel and session
+            channel.disconnect();
+            session.disconnect();
 
         } catch (Exception e)
         {
@@ -272,7 +270,7 @@ public class FileController
             InputStream input = channel.getInputStream();
             try
             {
-                BufferedReader br = new BufferedReader(new InputStreamReader(input));
+                BufferedReader br = new BufferedReader(new InputStreamReader(input, "utf-8"));
                 String line;
                 while ((line = br.readLine()) != null)
                 {
@@ -296,6 +294,8 @@ public class FileController
                 e.getMessage();
 
             }
+            channel.disconnect();
+            session.disconnect();
         } catch (Exception e)
         {
             System.out.println(e);

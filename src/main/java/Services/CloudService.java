@@ -1,7 +1,5 @@
 package Services;
 
-import java.util.List;
-
 import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.Identifier;
@@ -10,6 +8,8 @@ import org.openstack4j.model.compute.Server;
 import org.openstack4j.model.compute.ServerCreate;
 import org.openstack4j.model.image.Image;
 import org.openstack4j.openstack.OSFactory;
+
+import java.util.List;
 
 /**
  * If the all the Cloud Services are overloaded, CREATE a new server
@@ -28,7 +28,7 @@ public class CloudService
                 .authenticate();
     }
 
-    public void createServer()
+    public String createServer()
     {
         ServerCreate server = Builders.server()
                 .name("Ubuntu 2")
@@ -37,7 +37,10 @@ public class CloudService
                 .keypairName("jack")
                 .build();
 
-        os.compute().servers().boot(server);
+        Server boot = os.compute().servers().boot(server);
+        String accessIPv4 = boot.getAccessIPv4();
+        return accessIPv4;
+
     }
 
 
