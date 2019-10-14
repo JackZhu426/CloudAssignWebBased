@@ -16,11 +16,12 @@ public class WorkersClient
     public static void main(String[] args)
     {
         List<String> list = new ArrayList<String>();
-        // will automatically detect files & process every 60s
+        // will automatically detect files & process every 30s
         while (true)
         {
             File filePath = new File("/home/ubuntu/upload/");
             File[] allFiles = filePath.listFiles();
+
             /*
                 Maintain a request queue by traversing new File[] compared with those have been processed,
                 find new file(s) in the directory to request for the processing
@@ -38,47 +39,45 @@ public class WorkersClient
                     String absolutePath = file.getAbsolutePath();
                     String fileName = file.getName();
                     System.out.println("Find a new file, prepare to process: " + fileName);
+                    // multi-threaded
                     new Thread(new Runnable()
                     {
                         public void run()
                         {
-                            if (fileName.endsWith(".jar"))
-                            {
-                                long startTime = System.currentTimeMillis();
-                                Process process = processFile(absolutePath);
+                            long startTime = System.currentTimeMillis();
+                            Process process = processFile(absolutePath);
                                 /*
                                     total time cost, to generate the bill
                                  */
-                                long timeCost = System.currentTimeMillis() - startTime;
-                                long bill = timeCost * FEEONMS;
-                                System.out.println("Process finished: " + fileName);
-                                // result file (e.g. 1gsh457j_result.txt)
-                                String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
-                                        "_result" +
-                                        ".txt";
-                                try
+                            long timeCost = System.currentTimeMillis() - startTime;
+                            long bill = timeCost * FEEONMS;
+                            System.out.println("Process finished: " + fileName);
+                            // result file (e.g. 1gsh457j_result.txt)
+                            String resultFileName = "/home/ubuntu/result/" + fileName.split("_")[0] +
+                                    "_result" +
+                                    ".txt";
+                            try
+                            {
+                                BufferedReader bufferedReader =
+                                        new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"
+                                        ));
+                                PrintWriter printWriter =
+                                        new PrintWriter(new OutputStreamWriter(new FileOutputStream(resultFileName),
+                                                "utf-8"), true);
+                                String line = null;
+                                while ((line = bufferedReader.readLine()) != null)
                                 {
-                                    BufferedReader bufferedReader =
-                                            new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"
-                                            ));
-                                    PrintWriter printWriter =
-                                            new PrintWriter(new OutputStreamWriter(new FileOutputStream(resultFileName),
-                                                    "utf-8"), true);
-                                    String line = null;
-                                    while ((line = bufferedReader.readLine()) != null)
-                                    {
-                                        printWriter.write(line);
-                                    }
-                                    printWriter.append("\nThis program's bill: $" + bill + ". Please pay online");
-                                    // close the streams
-                                    bufferedReader.close();
-                                    printWriter.close();
-                                    // upload back to the master
-                                    uploadResult(resultFileName);
-                                } catch (Exception e)
-                                {
-                                    e.printStackTrace();
+                                    printWriter.write(line);
                                 }
+                                printWriter.append("\nThis program's bill: $" + bill + ". Please pay online");
+                                // close the streams
+                                bufferedReader.close();
+                                printWriter.close();
+                                // upload back to the master
+                                uploadResult(resultFileName);
+                            } catch (Exception e)
+                            {
+                                e.printStackTrace();
                             }
                         }
                     }).start();
@@ -101,7 +100,14 @@ public class WorkersClient
         Process process = null;
         try
         {
-            process = Runtime.getRuntime().exec("java -jar " + abosolutePath);
+            if (abosolutePath.endsWith(".jar"))
+            {
+                process = Runtime.getRuntime().exec("java -jar " + abosolutePath);
+            } else if (abosolutePath.endsWith(".py"))
+            {
+                process = Runtime.getRuntime().exec("python " + abosolutePath);
+            }
+
 
         } catch (IOException e)
         {
@@ -139,7 +145,7 @@ public class WorkersClient
             {
                 sftpChannel.put(file, path);
 
-                System.out.println("File Uploaded to Master: " + file.substring(file.lastIndexOf("/") + 1));
+                System.out.println("File Uploaded to Master: " + file.substring(file.lastIndexOf(File.separator) + 1));
             } catch (Exception e)
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e

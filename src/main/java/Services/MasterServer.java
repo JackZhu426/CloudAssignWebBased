@@ -50,8 +50,13 @@ public class MasterServer
                 if (flagQueue)
                 {
                     CloudService cloudService = new CloudService();
-                    String server = cloudService.createServer();
-                    // workersIpList.add(server);
+                    String serverIp = cloudService.createServer();
+                    Thread.sleep(60000); // wait for 60s
+                    /*
+                        add to the list & run the jar file to start the program
+                     */
+                    // workersIpList.add(serverIp);
+                    // sysCommand(serverIp, "java -jar /home/ubuntu/javarepo/Master.jar");
                 }
 
                 boolean flagFileExsists = false;

@@ -33,7 +33,7 @@ public class FileController
         String passcode = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
         String fileName = passcode + "_" + upload.getOriginalFilename();
         String cloudDst = path + fileName;
-        if (fileName.endsWith(".jar"))
+        if (fileName.endsWith(".jar") || fileName.endsWith(".py"))
         {
             try
             {
@@ -43,7 +43,6 @@ public class FileController
                 JSch jsch = new JSch();
                 Session session = jsch.getSession(user, host, 22);
                 Properties config = new Properties();
-                // session.setPassword("KIT418@utas"); // if password is empty please comment it
                 jsch.addIdentity(privateKey);
                 System.out.println("identity added ");
                 config.put("StrictHostKeyChecking", "no");
