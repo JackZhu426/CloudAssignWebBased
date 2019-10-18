@@ -114,8 +114,7 @@ public class FileController
             request.setAttribute("status", "Your task is completed!! You can download now");
         } else
         {
-            request.setAttribute("status", "No such file... 1. Wrong Code 2. Task is still processing... Please " +
-                    "re-input the code or download later");
+            request.setAttribute("status", "No such file... Your job has been canceled!");
         }
         request.getRequestDispatcher("/download.jsp").forward(request, response);
     }

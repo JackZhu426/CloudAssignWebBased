@@ -20,44 +20,59 @@ public class MasterServer
         {
             File uploadFiles = new File("/home/ubuntu/upload");
             File[] files = uploadFiles.listFiles();
-
+            int fileNum = 0;
+            for (File file : files)
+            {
+                fileNum++;
+            }
             /*
              * Query the status of workers
              */
+            for (int i = 0; i < workersIpList.size(); i++)
+            {
+                System.out.println("The worker ip - " + workersIpList.get(i) + " status is as follows: ");
+                if (i == 0)
+                {
+                    sysCommand(workersIpList.get(i), "vmstat", "/home/ubuntu/javarepo/jack.pem");
+                } else if (i == 1)
+                {
+                    sysCommand(workersIpList.get(i), "vmstat", "/home/ubuntu/javarepo/raph-key.pem");
+                }
+
+            }
+            /*
+                Elasticity: start a new machine to reduce the waiting time
+             */
+            boolean flagQueue = true; // default
             for (String workerIp : workersIpList)
             {
-                System.out.println("The worker ip - " + workerIp + " status is as follows: ");
-                sysCommand(workerIp, "sar -u 1 1");
+                // if there is 1 server's waiting processes is < 10, no need to create a new server
+                if (fileList.size() + 1 < fileNum)
+                {
+                    flagQueue = false;
+                }
+            }
+            // all queues are busy (more than 10 processes waiting)
+            if (flagQueue == false)
+            {
+                CloudService cloudService = new CloudService();
+                // in this process
+                String serverIp = cloudService.createServer();
+                    /*
+                        add to the list & run the jar file to start the program
+                     */
+                workersIpList.add(serverIp);
+                Thread.sleep(60000);
+
+                createWorker(serverIp, "java -jar /home/ubuntu/javarepo/Workers.jar", "/home/ubuntu/javarepo" +
+                        "/raph" +
+                        "-key.pem");
+
             }
 
             for (File file : files)
             {
                 System.out.println("filename: " + file.getName());
-
-                /*
-                    Elasticity: start a new machine to reduce the waiting time
-                 */
-                boolean flagQueue = true; // default
-                for (String workerIp : workersIpList)
-                {
-                    // if there is 1 server's waiting processes is < 10, no need to create a new server
-                    if (Integer.parseInt(waitingProcess(workerIp)) < 10)
-                    {
-                        flagQueue = false;
-                    }
-                }
-                // all queues are busy (more than 10 processes waiting)
-                if (flagQueue)
-                {
-                    CloudService cloudService = new CloudService();
-                    String serverIp = cloudService.createServer();
-                    Thread.sleep(60000); // wait for 60s
-                    /*
-                        add to the list & run the jar file to start the program
-                     */
-                    // workersIpList.add(serverIp);
-                    // sysCommand(serverIp, "java -jar /home/ubuntu/javarepo/Master.jar");
-                }
 
                 boolean flagFileExsists = false;
                 if (fileList.contains(file.getName()))
@@ -78,21 +93,44 @@ public class MasterServer
                                 call the static function upload(String file),
                                 if there are multiple workers, allocate them based on its status
                                 solution: traverse and get the cpu occupancy rate, .get(lowest index)
-                                e.g. int lowest = 0;  int min = Double.MAX_VALUE;
-                                for (i=0; i<workersIpList.size();i++) { if(processStatus(workersIpList.get(i) < min))
+                                e.g. (pseudocode) int lowest = 0;  int min = Double.MAX_VALUE;
+                                for (i=0; i<workersIpList.size();i++) { if(waitingProcess(workersIpList.get(i) < min))
                                 max = processStatus(workersIpList.get(i) ; lowest = i;
                              */
-                            try
+
+                            if (workersIpList.size() == 2)
                             {
-                                upload(filePath, workersIpList.get(0));
-                            } catch (Exception e)
+                                try
+                                {
+                                    upload(filePath, workersIpList.get(0), "/home/ubuntu/javarepo/jack.pem");
+                                } catch (Exception e)
+                                {
+                                    try
+                                    {
+                                        upload(filePath, workersIpList.get(1), "/home/ubuntu/javarepo/raph-key.pem");
+                                    } catch (Exception ex)
+                                    {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                                try
+                                {
+                                    upload(filePath, workersIpList.get(1), "/home/ubuntu/javarepo/raph-key.pem");
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            } else
                             {
-                                /*
-                                    If worker fails, reschedule all the jobs to other workers:
-                                    e.g. upload(filePath, workersIpList.get(1));
-                                 */
-                                // upload(filePath, workersIpList.get(1));
+                                try
+                                {
+                                    upload(filePath, workersIpList.get(0), "/home/ubuntu/javarepo/jack.pem");
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
+
 
                         }
                     }).start();
@@ -104,54 +142,39 @@ public class MasterServer
         }
     }
 
-    public static void upload(String file, String hostIp)
+    public static void upload(String file, String hostIp, String pk) throws Exception
     {
         String path = "/home/ubuntu/upload/";
 
-        try
-        {
-            String host = hostIp;
-            String user = "ubuntu";
-            String privateKey = "/home/ubuntu/javarepo/jack.pem"; //please provide your ppk file
-            JSch jsch = new JSch();
-            Session session = jsch.getSession(user, host, 22);
-            Properties config = new Properties();
-            jsch.addIdentity(privateKey);
-            System.out.println("identity added ");
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.connect();
 
-            Channel channel = session.openChannel("sftp");
-            channel.connect();
-            ChannelSftp sftpChannel = (ChannelSftp) channel;
+        String host = hostIp;
+        String user = "ubuntu";
+        String privateKey = pk; // in Linux, provide .pem file
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(user, host, 22);
+        Properties config = new Properties();
+        jsch.addIdentity(privateKey);
+        System.out.println("identity added ");
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.connect();
 
-            try
-            {
-                sftpChannel.put(file, path);
-                System.out.println("File Uploaded to the worker: " + hostIp + "; filename: " + file.substring(file.lastIndexOf(
-                        "/") + 1));
-            } catch (Exception e)
-            {
-                System.out.println("Exception occurred during reading file from SFTP server due to " + e
-                        .getMessage());
-                e.getMessage();
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp sftpChannel = (ChannelSftp) channel;
 
-            }
+        sftpChannel.put(file, path);
+        System.out.println("File Uploaded to the worker: " + hostIp + "; filename: " + file.substring(file.lastIndexOf(
+                "/") + 1));
 
-            sftpChannel.exit();
-            session.disconnect();
-        } catch (JSchException e)
-        {
-            e.printStackTrace();
-        } catch (Exception e)
-        {
-            System.out.println(e);
-        }
+
+        sftpChannel.exit();
+        session.disconnect();
+
 
     }
 
-    public static void sysCommand(String hostIp, String cmd)
+    public static void sysCommand(String hostIp, String cmd, String pk)
     {
 
         try
@@ -159,7 +182,7 @@ public class MasterServer
             String command = cmd;
             String host = hostIp;
             String user = "ubuntu";
-            String privateKey = "/home/ubuntu/javarepo/jack.pem";
+            String privateKey = pk;
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
             Properties config = new Properties();
@@ -192,8 +215,38 @@ public class MasterServer
             {
                 System.out.println("Exception occurred during reading file from SFTP server due to " + e.getMessage());
                 e.getMessage();
-
             }
+            channel.disconnect();
+            session.disconnect();
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public static void createWorker(String hostIp, String cmd, String pk)
+    {
+
+        try
+        {
+            String command = cmd;
+            String host = hostIp;
+            String user = "ubuntu";
+            String privateKey = pk;
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, 22);
+            Properties config = new Properties();
+            jsch.addIdentity(privateKey);
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(command);
+
+            channel.connect();
+
+            channel.disconnect();
+            session.disconnect();
         } catch (Exception e)
         {
             System.out.println(e);
@@ -261,5 +314,6 @@ public class MasterServer
             return queueNum;
         }
     }
+
 
 }

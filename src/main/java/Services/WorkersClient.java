@@ -10,6 +10,7 @@ import java.util.Properties;
 public class WorkersClient
 {
 
+
     // every millisecond fee: $1000
     private final static long FEEONMS = 1000;
 
